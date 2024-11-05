@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3099:3099"
+    environment:
+      VITE_API_URL: "http://backend:3040"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3040:3040"
+    environment:
+      PB_ENV: "production"
+    volumes:
+      - ./pb_data:/pb_data
+      - ./pb_migrations:/pb_migrations
+      - ./pb_backups:/pb_backups
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

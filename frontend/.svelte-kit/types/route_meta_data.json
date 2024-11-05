@@ -1,0 +1,7 @@
+{
+	"/": [],
+	"/dashboard": [
+		"src/routes/dashboard/+page.ts"
+	],
+	"/(auth)/login": []
+}

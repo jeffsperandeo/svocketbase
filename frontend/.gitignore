@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+
+# PocketBase data
+/pb_data/*
+!/pb_data/.gitkeep
+
+# Build outputs
+dist/
+build/
+
+# System files
+.DS_Store
+*.log
+
+# Docker volumes
+docker-compose.override.yml
