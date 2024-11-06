@@ -7,7 +7,8 @@ services:
     ports:
       - "3099:3099"
     environment:
-      - VITE_API_URL=http://localhost:3040
+      - VITE_API_URL=http://backend:3040
+      - VITE_POCKETBASE_URL=http://backend:3040
       - HOST=0.0.0.0
     volumes:
       - ./frontend:/app

@@ -1,3 +1,4 @@
+// src/lib/pocketbase.ts
 import PocketBase from 'pocketbase';
 import { writable } from 'svelte/store';
 import { goto } from '$app/navigation';
@@ -15,15 +16,11 @@ export interface User {
     verified: boolean;
 }
 
-// Initialize PocketBase instance
-export const pb = new PocketBase('http://localhost:3040');
-
-// Initialize currentUser store
+export const pb = new PocketBase(browser ? 'http://localhost:3040' : 'http://backend:3040');
 export const currentUser = writable<User | null>(null);
 
 if (browser) {
     currentUser.set(pb.authStore.model);
-
     pb.authStore.onChange((auth) => {
         console.log('Auth state changed:', {
             isValid: pb.authStore.isValid,
@@ -36,28 +33,16 @@ if (browser) {
 
 export const login = async (email: string, password: string) => {
     try {
-        console.log('Login attempt:', email);
         const authData = await pb.collection('users').authWithPassword(email, password);
-
-        console.log('Login response:', {
-            success: true,
-            token: !!authData.token,
-            model: !!authData.record
-        });
-
         if (!authData.token) {
             throw new Error('No auth token received');
         }
-
         currentUser.set(authData.record);
-
-        // Set cookie manually
         document.cookie = pb.authStore.exportToCookie({
             httpOnly: false,
             secure: false,
             sameSite: 'lax'
         });
-
         await goto('/dashboard');
         return { success: true };
     } catch (err: any) {
@@ -77,8 +62,6 @@ export const register = async (
 ) => {
     try {
         const username = email.split('@')[0];
-        console.log('Starting registration for:', email);
-
         const data = {
             email,
             password,
@@ -87,13 +70,8 @@ export const register = async (
             username,
             emailVisibility: true
         };
-
         const record = await pb.collection('users').create(data);
-        console.log('User created:', record);
-
         const authData = await pb.collection('users').authWithPassword(email, password);
-        console.log('Auto-login successful:', authData);
-
         currentUser.set(authData.record);
         await goto('/dashboard');
         return { success: true };

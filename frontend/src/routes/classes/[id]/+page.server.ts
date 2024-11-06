@@ -1,70 +1,86 @@
-// src/routes/classes/+page.server.ts
-import { redirect } from '@sveltejs/kit';
+// /src/routes/classes/[id]/+page.server.ts
+import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { pb } from '$lib/pocketbase';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = (async ({ params, locals }) => {
     if (!locals.user) {
-        throw redirect(303, '/login');
+        throw error(401, 'Unauthorized');
     }
 
     try {
-        // Get user's roles to check if they're an instructor
-        const userRoles = await pb.collection('user_roles').getList(1, 1, {
-            filter: `user_id="${locals.user.id}"`,
-            expand: 'role_id'
-        });
-
-        const isInstructor = userRoles.items.some(role => 
-            role.expand?.role_id?.name === 'instructor'
-        );
-
-        // Get upcoming classes
-        const upcomingClasses = await pb.collection('classes').getList(1, 20, {
-            filter: 'schedule >= @now',
-            sort: 'schedule',
+        console.log('Fetching class with ID:', params.id);
+        const classItem = await pb.collection('classes').getOne(params.id, {
             expand: 'instructor_id,gym_id'
         });
+        console.log('Class data:', classItem);
 
-        // If user is instructor, get their classes
-        let instructorClasses = [];
-        if (isInstructor) {
-            instructorClasses = await pb.collection('classes').getList(1, 20, {
-                filter: `instructor_id = "${locals.user.id}"`,
-                sort: '-schedule',
-                expand: 'gym_id'
-            });
-        }
+        // Check if user is the instructor
+        const isInstructor = classItem.instructor_id === locals.user.id;
+        console.log('Is instructor:', isInstructor);
 
-        // Get user's gym affiliation
-        const profile = await pb.collection('profile').getFirstListItem(
-            `user_id="${locals.user.id}"`,
-            { expand: 'gym_id' }
-        );
-
-        // Get favorite/home gym's classes
-        let gymClasses = [];
-        if (profile.gym_id) {
-            gymClasses = await pb.collection('classes').getList(1, 20, {
-                filter: `gym_id = "${profile.gym_id}" && schedule >= @now`,
-                sort: 'schedule',
-                expand: 'instructor_id'
-            });
+        // Get registration status
+        let isRegistered = false;
+        if (!isInstructor) {
+            try {
+                const registrations = await pb.collection('class_registrations').getList(1, 1, {
+                    filter: `class_id = "${params.id}" && student_id = "${locals.user.id}"`
+                });
+                isRegistered = registrations.totalItems > 0;
+                console.log('Is registered:', isRegistered);
+            } catch (err) {
+                console.error('Error checking registration:', err);
+            }
         }
 
         return {
-            user: locals.user,
+            class_item: classItem,
+            isRegistered,
             isInstructor,
-            upcomingClasses: upcomingClasses.items,
-            instructorClasses: instructorClasses.items,
-            gymClasses: gymClasses.items,
-            userGym: profile.expand?.gym_id
+            user: locals.user
         };
-    } catch (error) {
-        console.error('Error loading classes:', error);
-        return {
-            user: locals.user,
-            error: 'Failed to load classes'
-        };
+    } catch (err) {
+        console.error('Error loading class:', err);
+        throw error(404, 'Class not found');
+    }
+}) satisfies PageServerLoad;
+
+export const actions = {
+    register: async ({ params, locals }) => {
+        if (!locals.user) {
+            throw error(401, 'Unauthorized');
+        }
+
+        try {
+            await pb.collection('class_registrations').create({
+                class_id: params.id,
+                student_id: locals.user.id,
+                status: 'registered'
+            });
+            return { success: true };
+        } catch (err) {
+            console.error('Error registering for class:', err);
+            throw error(500, 'Failed to register for class');
+        }
+    },
+
+    unregister: async ({ params, locals }) => {
+        if (!locals.user) {
+            throw error(401, 'Unauthorized');
+        }
+
+        try {
+            const registrations = await pb.collection('class_registrations').getList(1, 1, {
+                filter: `class_id = "${params.id}" && student_id = "${locals.user.id}"`
+            });
+
+            if (registrations.items.length > 0) {
+                await pb.collection('class_registrations').delete(registrations.items[0].id);
+            }
+            return { success: true };
+        } catch (err) {
+            console.error('Error unregistering from class:', err);
+            throw error(500, 'Failed to unregister from class');
+        }
     }
 };

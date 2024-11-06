@@ -26,7 +26,8 @@ export const nodes = [
 	() => import('./nodes/22'),
 	() => import('./nodes/23'),
 	() => import('./nodes/24'),
-	() => import('./nodes/25')
+	() => import('./nodes/25'),
+	() => import('./nodes/26')
 ];
 
 export const server_loads = [];
@@ -38,18 +39,19 @@ export const dictionary = {
 		"/admin/gyms": [~14,[2]],
 		"/classes": [~15,[4]],
 		"/classes/[id]": [~16,[4]],
-		"/dashboard": [17],
-		"/gyms": [~18,[5]],
-		"/gyms/[id]": [~19,[5]],
+		"/classes/[id]/edit": [~17,[4]],
+		"/dashboard": [18],
+		"/gyms": [~19,[5]],
+		"/gyms/[id]": [~20,[5]],
 		"/(auth)/login": [9],
 		"/(auth)/logout": [~10],
-		"/profile": [~20],
+		"/profile": [~21],
 		"/(auth)/register": [11],
-		"/sparring": [~21,[6]],
-		"/sparring/[id]": [~22,[6]],
-		"/techniques": [~23,[7]],
-		"/techniques/[id]": [~24,[7]],
-		"/training": [~25]
+		"/sparring": [~22,[6]],
+		"/sparring/[id]": [~23,[6]],
+		"/techniques": [~24,[7]],
+		"/techniques/[id]": [~25,[7]],
+		"/training": [~26]
 	};
 
 export const hooks = {

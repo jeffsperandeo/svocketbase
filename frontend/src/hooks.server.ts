@@ -5,6 +5,13 @@ export const handle: Handle = async ({ event, resolve }) => {
     console.log('\n=== Request Start ===');
     console.log('Path:', event.url.pathname);
 
+    // Always use backend service URL within Docker network
+    pb.baseUrl = 'http://backend:3040';
+    
+    console.log('Using PocketBase URL:', pb.baseUrl);
+    console.log('Auth Store Valid:', pb.authStore.isValid);
+    console.log('Auth Token:', pb.authStore.token);
+
     event.locals.user = null;
     const authCookie = event.request.headers.get('cookie');
     console.log('Received cookies:', authCookie);
@@ -16,8 +23,19 @@ export const handle: Handle = async ({ event, resolve }) => {
             if (pb.authStore.isValid && pb.authStore.model) {
                 event.locals.user = structuredClone(pb.authStore.model);
                 console.log('Auth loaded successfully');
+                console.log('User ID:', event.locals.user.id);
+                
+                // Test the auth token
+                try {
+                    await pb.collection('users').getOne(event.locals.user.id);
+                    console.log('Auth token validated successfully');
+                } catch (err) {
+                    console.error('Auth token validation failed:', err);
+                    pb.authStore.clear();
+                }
             } else {
                 console.log('Auth token invalid or expired');
+                pb.authStore.clear();
             }
         } catch (err) {
             console.error('Error loading auth:', err);
@@ -34,6 +52,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     if (isProtectedPath && !event.locals.user) {
         console.log('Redirecting to login');
         throw redirect(303, '/login');
+    }
+
+    // Add PocketBase auth header to all requests
+    if (pb.authStore.isValid) {
+        event.request.headers.set('Authorization', pb.authStore.token);
     }
 
     const response = await resolve(event);

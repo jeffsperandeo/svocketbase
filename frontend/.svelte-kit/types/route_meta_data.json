@@ -32,6 +32,9 @@
 	"/classes/[id]": [
 		"src/routes/classes/[id]/+page.server.ts"
 	],
+	"/classes/[id]/edit": [
+		"src/routes/classes/[id]/edit/+page.server.ts"
+	],
 	"/dashboard": [
 		"src/routes/dashboard/+page.ts"
 	],
