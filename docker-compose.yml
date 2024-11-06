@@ -7,7 +7,11 @@ services:
     ports:
       - "3099:3099"
     environment:
-      VITE_API_URL: "http://backend:3040"
+      - VITE_API_URL=http://localhost:3040
+      - HOST=0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
     networks:
@@ -20,7 +24,13 @@ services:
     ports:
       - "3040:3040"
     environment:
-      PB_ENV: "production"
+      - PB_ENV=production
+      - CORS_ENABLED=true
+      - PUBLIC_URL=http://localhost:3040
+      - PB_CORS_ORIGINS=http://localhost:3099
+      - PB_CORS_METHODS=GET,POST,PATCH,DELETE,HEAD,OPTIONS
+      - PB_CORS_CREDENTIALS=true
+      - PB_CORS_ALLOW_HEADERS=authorization,content-type
     volumes:
       - ./pb_data:/pb_data
       - ./pb_migrations:/pb_migrations

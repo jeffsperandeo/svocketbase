@@ -1,7 +1,65 @@
 {
 	"/": [],
+	"/achievements": [],
+	"/admin": [],
+	"/admin/classes": [
+		"src/routes/admin/classes/+page.server.ts"
+	],
+	"/admin/gyms": [
+		"src/routes/admin/gyms/+page.server.ts"
+	],
+	"/api": [
+		"src/routes/api/+layout.server.ts"
+	],
+	"/api/classes": [
+		"src/routes/api/classes/+server.ts"
+	],
+	"/api/gyms": [
+		"src/routes/api/gyms/+server.ts"
+	],
+	"/api/profile": [
+		"src/routes/api/profile/+server.ts"
+	],
+	"/api/sparring": [
+		"src/routes/api/sparring/+server.ts"
+	],
+	"/api/techniques": [
+		"src/routes/api/techniques/+server.ts"
+	],
+	"/classes": [
+		"src/routes/classes/+page.server.ts"
+	],
+	"/classes/[id]": [
+		"src/routes/classes/[id]/+page.server.ts"
+	],
 	"/dashboard": [
 		"src/routes/dashboard/+page.ts"
 	],
-	"/(auth)/login": []
+	"/gyms": [
+		"src/routes/gyms/+page.server.ts"
+	],
+	"/gyms/[id]": [
+		"src/routes/gyms/[id]/+page.server.ts"
+	],
+	"/(auth)/login": [],
+	"/(auth)/logout": [
+		"src/routes/(auth)/logout/+page.server.ts"
+	],
+	"/profile": [
+		"src/routes/profile/+page.server.ts"
+	],
+	"/(auth)/register": [],
+	"/sparring": [
+		"src/routes/sparring/+page.server.ts"
+	],
+	"/sparring/[id]": [
+		"src/routes/sparring/[id]/+page.server.ts"
+	],
+	"/techniques": [
+		"src/routes/techniques/+page.server.ts"
+	],
+	"/techniques/[id]": [
+		"src/routes/techniques/[id]/+page.server.ts"
+	],
+	"/training": []
 }

@@ -26,14 +26,13 @@
  * ```
  */
 declare module '$env/static/private' {
+	export const VITE_POCKETBASE_URL: string;
 	export const npm_config_user_agent: string;
 	export const NODE_VERSION: string;
 	export const HOSTNAME: string;
-	export const ORIGIN: string;
 	export const YARN_VERSION: string;
 	export const npm_node_execpath: string;
 	export const npm_config_noproxy: string;
-	export const PORT: string;
 	export const HOME: string;
 	export const npm_package_json: string;
 	export const npm_config_userconfig: string;
@@ -48,6 +47,7 @@ declare module '$env/static/private' {
 	export const NODE: string;
 	export const npm_package_name: string;
 	export const npm_lifecycle_script: string;
+	export const HOST: string;
 	export const npm_package_version: string;
 	export const npm_lifecycle_event: string;
 	export const npm_config_globalconfig: string;
@@ -56,6 +56,7 @@ declare module '$env/static/private' {
 	export const npm_execpath: string;
 	export const npm_config_global_prefix: string;
 	export const npm_command: string;
+	export const VITE_API_URL: string;
 	export const INIT_CWD: string;
 	export const EDITOR: string;
 	export const NODE_ENV: string;
@@ -71,7 +72,7 @@ declare module '$env/static/private' {
  * ```
  */
 declare module '$env/static/public' {
-	export const PUBLIC_POCKETBASE_URL: string;
+	
 }
 
 /**
@@ -90,14 +91,13 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
+		VITE_POCKETBASE_URL: string;
 		npm_config_user_agent: string;
 		NODE_VERSION: string;
 		HOSTNAME: string;
-		ORIGIN: string;
 		YARN_VERSION: string;
 		npm_node_execpath: string;
 		npm_config_noproxy: string;
-		PORT: string;
 		HOME: string;
 		npm_package_json: string;
 		npm_config_userconfig: string;
@@ -112,6 +112,7 @@ declare module '$env/dynamic/private' {
 		NODE: string;
 		npm_package_name: string;
 		npm_lifecycle_script: string;
+		HOST: string;
 		npm_package_version: string;
 		npm_lifecycle_event: string;
 		npm_config_globalconfig: string;
@@ -120,6 +121,7 @@ declare module '$env/dynamic/private' {
 		npm_execpath: string;
 		npm_config_global_prefix: string;
 		npm_command: string;
+		VITE_API_URL: string;
 		INIT_CWD: string;
 		EDITOR: string;
 		NODE_ENV: string;
@@ -142,7 +144,6 @@ declare module '$env/dynamic/private' {
  */
 declare module '$env/dynamic/public' {
 	export const env: {
-		PUBLIC_POCKETBASE_URL: string;
 		[key: `PUBLIC_${string}`]: string | undefined;
 	}
 }

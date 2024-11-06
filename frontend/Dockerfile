@@ -16,8 +16,9 @@ RUN npm install
 # Copy the rest of the application
 COPY . .
 
-# Expose the port the app runs on
+# Expose the port and set host
+ENV HOST=0.0.0.0
 EXPOSE 3099
 
-# Start the application
-CMD ["npm", "run", "dev"]
+# Start the application with host binding
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

@@ -1,46 +1,65 @@
 <script lang="ts">
-    import { currentUser } from '$lib/pocketbase';
+    import { currentUser, logout } from '$lib/pocketbase';
     import { page } from '$app/stores';
     import { fly } from 'svelte/transition';
-    import { enhance } from '$app/forms';
+    import { goto } from '$app/navigation';
     
     let isMenuOpen = false;
     
     const toggleMenu = () => isMenuOpen = !isMenuOpen;
     const closeMenu = () => isMenuOpen = false;
     
-    // Navigation items
     const navItems = [
-        { href: '/dashboard', label: 'Dashboard', protected: true },
-        { href: '/training', label: 'Training Log', protected: true },
-        { href: '/achievements', label: 'Achievements', protected: true },
-        { href: '/profile', label: 'Profile', protected: true }
+        { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+        { href: '/training', label: 'Training Log', icon: '📝' },
+        { href: '/achievements', label: 'Achievements', icon: '🏆' },
+        { href: '/profile', label: 'Profile', icon: '👤' }
     ];
+
+    const handleNav = async (path: string) => {
+        if ($currentUser) {
+            await goto(path);
+        }
+    };
+
+    const handleLogout = async () => {
+        if (confirm('Are you sure you want to logout?')) {
+            await logout();
+        }
+    };
 </script>
 
-<div class="min-h-screen bg-gray-50">
-    <nav class="bg-white shadow-lg">
+<div class="min-h-screen bg-gray-50 flex flex-col">
+    <nav class="bg-white shadow-lg border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <!-- Logo and main nav -->
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="/" class="text-xl font-bold text-indigo-600">RolFlow</a>
+                        <button 
+                            on:click={() => handleNav('/')}
+                            class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-indigo-500 hover:to-purple-500 transition-all"
+                        >
+                            RolFlow
+                        </button>
                     </div>
                     
                     <!-- Desktop navigation -->
-                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-6">
                         {#if $currentUser}
-                            {#each navItems.filter(item => !item.protected || $currentUser) as {href, label}}
-                                <a
-                                    {href}
-                                    class="
-                                        {$page.url.pathname === href ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'}
-                                        inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium
-                                    "
+                            {#each navItems as {href, label, icon}}
+                                <button
+                                    on:click={() => handleNav(href)}
+                                    data-sveltekit-preload-data
+                                    class="group flex items-center px-3 py-2 text-sm font-medium relative
+                                        {$page.url.pathname === href ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'}"
                                 >
+                                    <span class="mr-2">{icon}</span>
                                     {label}
-                                </a>
+                                    {#if $page.url.pathname === href}
+                                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600"></div>
+                                    {/if}
+                                </button>
                             {/each}
                         {/if}
                     </div>
@@ -51,54 +70,67 @@
                     {#if $currentUser}
                         <div class="ml-3 relative">
                             <div class="flex items-center space-x-4">
-                                <span class="text-sm text-gray-700">{$currentUser.name}</span>
-                                <form action="/auth/logout" method="POST" use:enhance>
-                                    <button 
-                                        type="submit"
-                                        class="bg-white px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-gray-900 focus:outline-none"
-                                    >
-                                        Logout
-                                    </button>
-                                </form>
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium">
+                                        {$currentUser?.name?.[0]?.toUpperCase() || 'U'}
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700">{$currentUser.name || 'User'}</span>
+                                </div>
+                                <button 
+                                    on:click={handleLogout}
+                                    class="bg-white px-4 py-2 rounded-md text-sm font-medium text-gray-700 
+                                        hover:bg-gray-50 hover:text-gray-900 
+                                        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                                        border border-gray-300 transition-all"
+                                >
+                                    Logout
+                                </button>
                             </div>
                         </div>
                     {:else}
                         <div class="flex space-x-4">
-                            <a 
-                                href="/login"
+                            <button 
+                                on:click={() => goto('/login')}
                                 class="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                             >
                                 Login
-                            </a>
-                            <a 
-                                href="/register"
-                                class="bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium"
+                            </button>
+                            <button 
+                                on:click={() => goto('/register')}
+                                class="px-4 py-2 rounded-md text-sm font-medium text-white
+                                    bg-gradient-to-r from-indigo-600 to-purple-600
+                                    hover:from-indigo-500 hover:to-purple-500
+                                    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
+                                    transition-all"
                             >
                                 Sign Up
-                            </a>
+                            </button>
                         </div>
                     {/if}
                 </div>
                 
                 <!-- Mobile menu button -->
-                <div class="-mr-2 flex items-center sm:hidden">
+                <div class="flex items-center sm:hidden">
                     <button
                         on:click={toggleMenu}
-                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                        aria-expanded="false"
+                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400
+                            hover:text-gray-500 hover:bg-gray-100 
+                            focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                        aria-expanded={isMenuOpen}
                     >
                         <span class="sr-only">Open main menu</span>
                         <svg
-                            class="h-6 w-6"
+                            class="h-6 w-6 transition-transform duration-200"
+                            class:rotate-180={isMenuOpen}
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
+                            <path 
+                                stroke-linecap="round" 
+                                stroke-linejoin="round" 
+                                stroke-width="2" 
                                 d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
                             />
                         </svg>
@@ -110,19 +142,22 @@
         <!-- Mobile menu -->
         {#if isMenuOpen}
             <div class="sm:hidden" transition:fly={{ y: -20, duration: 200 }}>
-                <div class="pt-2 pb-3 space-y-1">
+                <div class="pt-2 pb-3 space-y-1 bg-white shadow-lg">
                     {#if $currentUser}
-                        {#each navItems.filter(item => !item.protected || $currentUser) as {href, label}}
-                            <a
-                                {href}
-                                class="
-                                    {$page.url.pathname === href ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'}
-                                    block pl-3 pr-4 py-2 border-l-4 text-base font-medium
-                                "
-                                on:click={closeMenu}
+                        {#each navItems as {href, label, icon}}
+                            <button
+                                on:click={() => {
+                                    handleNav(href);
+                                    closeMenu();
+                                }}
+                                class="flex items-center w-full px-4 py-2 text-base font-medium
+                                    {$page.url.pathname === href ? 
+                                        'bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600' : 
+                                        'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}"
                             >
+                                <span class="mr-3">{icon}</span>
                                 {label}
-                            </a>
+                            </button>
                         {/each}
                     {/if}
                 </div>
@@ -131,16 +166,25 @@
     </nav>
 
     <!-- Page content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <slot />
+    <main class="flex-grow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <slot />
+        </div>
     </main>
     
     <!-- Footer -->
-    <footer class="bg-white border-t mt-auto">
+    <footer class="bg-white border-t border-gray-200">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-gray-500 text-sm">
-                © 2024 RolFlow. Track your BJJ journey.
-            </p>
+            <div class="flex justify-between items-center">
+                <p class="text-gray-500 text-sm">
+                    © 2024 RolFlow. Track your BJJ journey.
+                </p>
+                <div class="flex space-x-6">
+                    <button on:click={() => goto('/privacy')} class="text-gray-500 hover:text-gray-700 text-sm">Privacy</button>
+                    <button on:click={() => goto('/terms')} class="text-gray-500 hover:text-gray-700 text-sm">Terms</button>
+                    <button on:click={() => goto('/contact')} class="text-gray-500 hover:text-gray-700 text-sm">Contact</button>
+                </div>
+            </div>
         </div>
     </footer>
 </div>
