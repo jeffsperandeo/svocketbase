@@ -49,7 +49,7 @@ export const dictionary = {
 		"/sparring/[id]": [~22,[6]],
 		"/techniques": [~23,[7]],
 		"/techniques/[id]": [~24,[7]],
-		"/training": [25]
+		"/training": [~25]
 	};
 
 export const hooks = {

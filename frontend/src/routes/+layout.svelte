@@ -11,6 +11,7 @@
     
     const navItems = [
         { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+        { href: '/classes', label: 'Classes', icon: '🥋' },
         { href: '/training', label: 'Training Log', icon: '📝' },
         { href: '/achievements', label: 'Achievements', icon: '🏆' },
         { href: '/profile', label: 'Profile', icon: '👤' }
@@ -52,11 +53,11 @@
                                     on:click={() => handleNav(href)}
                                     data-sveltekit-preload-data
                                     class="group flex items-center px-3 py-2 text-sm font-medium relative
-                                        {$page.url.pathname === href ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'}"
+                                        {$page.url.pathname.startsWith(href) ? 'text-indigo-600' : 'text-gray-700 hover:text-indigo-600'}"
                                 >
                                     <span class="mr-2">{icon}</span>
                                     {label}
-                                    {#if $page.url.pathname === href}
+                                    {#if $page.url.pathname.startsWith(href)}
                                         <div class="absolute bottom-0 left-0 w-full h-0.5 bg-indigo-600"></div>
                                     {/if}
                                 </button>
@@ -151,7 +152,7 @@
                                     closeMenu();
                                 }}
                                 class="flex items-center w-full px-4 py-2 text-base font-medium
-                                    {$page.url.pathname === href ? 
+                                    {$page.url.pathname.startsWith(href) ? 
                                         'bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600' : 
                                         'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}"
                             >

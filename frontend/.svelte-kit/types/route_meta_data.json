@@ -61,5 +61,7 @@
 	"/techniques/[id]": [
 		"src/routes/techniques/[id]/+page.server.ts"
 	],
-	"/training": []
+	"/training": [
+		"src/routes/training/+page.server.ts"
+	]
 }

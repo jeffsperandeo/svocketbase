@@ -1,9 +1,10 @@
+// @ts-nocheck
 // src/routes/classes/+page.server.ts
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { pb } from '$lib/pocketbase';
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
     if (!locals.user) {
         throw redirect(303, '/login');
     }
